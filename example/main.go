@@ -11,8 +11,7 @@ var (
 )
 
 func main() {
-	client := ump_sdk.NewClient(1, token).
-		SetServerURL(url) // 可选：设置服务端地址，默认为 XXXXXX
+	client := ump_sdk.NewClient(url, 1, token)
 
 	auth, err := client.CheckAuth("user", "get")
 	if err != nil {

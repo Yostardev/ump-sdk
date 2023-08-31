@@ -6,15 +6,10 @@ type Client struct {
 	token         string
 }
 
-func NewClient(applicationID int, token string) *Client {
+func NewClient(url string, applicationID int, token string) *Client {
 	return &Client{
-		serverURL:     "https://opsump.youstar.net",
+		serverURL:     url,
 		applicationID: applicationID,
 		token:         token,
 	}
-}
-
-func (c *Client) SetServerURL(url string) *Client {
-	c.serverURL = url
-	return c
 }
