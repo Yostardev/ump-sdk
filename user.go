@@ -20,6 +20,7 @@ type UserInfo struct {
 	UpdatedAt time.Time `json:"updated_at"`
 	Name      string    `json:"name"`
 	Username  string    `json:"username"`
+	Avatar    string    `json:"avatar"`
 	IsApiUser bool      `json:"is_api_user"`
 	IdaasId   string    `json:"idaas_id"`
 	RoleIds   []int     `json:"role_ids"`
@@ -56,4 +57,17 @@ func (c *Client) GetUserInfo() (*UserInfo, error) {
 	}
 
 	return resp.Data, nil
+}
+
+func (c *Client) UpdateUserAvatar(avatar string) error {
+	res, err := requests.New().SetUrl(gf.StringJoin(c.serverURL, "/ump/api/v1/user/avatar")).SetJsonBody(map[string]string{
+		"avatar": avatar,
+	}).AddHeader("Authorization", c.token).Post()
+	if err != nil {
+		return err
+	}
+	if res.StatusCode != 200 {
+		return fmt.Errorf("update user avatar failed, status code: %d, response data: %s", res.StatusCode, res.Body.String())
+	}
+	return nil
 }
