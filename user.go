@@ -23,6 +23,8 @@ type UserInfo struct {
 	Avatar    string    `json:"avatar"`
 	IsApiUser bool      `json:"is_api_user"`
 	IdaasId   string    `json:"idaas_id"`
+	Email     []string  `json:"email"`
+	Phone     []string  `json:"phone"`
 	RoleIds   []int     `json:"role_ids"`
 	Roles     []struct {
 		Id            int    `json:"id"`
