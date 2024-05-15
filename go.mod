@@ -2,8 +2,6 @@ module github.com/Yostardev/ump-sdk
 
 go 1.22
 
-toolchain go1.22.3
-
 require (
 	github.com/Yostardev/gf v1.0.4
 	github.com/Yostardev/requests v1.0.6
