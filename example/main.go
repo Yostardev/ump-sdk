@@ -7,7 +7,7 @@ import (
 
 var (
 	url   = "https://dev-opsump.yostar.net"
-	token = "QcddoPbmrnTLMgxVHFwysb4yd6Se4edkhcTyippQMo3uS4nOaryXmH8DgcSEDekowmXGSADlIZ17YdVTkjMx82iuExwqyYHIADNa"
+	token = ""
 )
 
 func main() {
