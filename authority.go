@@ -2,8 +2,6 @@ package ump_sdk
 
 import (
 	"fmt"
-	"github.com/Yostardev/gf"
-	"github.com/Yostardev/requests"
 	"strconv"
 	"time"
 )
@@ -40,88 +38,67 @@ type authorityListResponse struct {
 }
 
 func (c *Client) CreateAuthority(name, describe, obj, act string) (*Authority, error) {
-	res, err := requests.New().SetUrl(gf.StringJoin(c.serverURL, "/ump/api/v1/authority")).SetJsonBody(&authorityRequest{
+	var resp authorityResponse
+	res, err := c.restyClient.R().SetResult(&resp).SetBody(&authorityRequest{
 		Name:          name,
 		Describe:      describe,
 		ApplicationID: c.applicationID,
 		Obj:           obj,
 		Act:           act,
-	}).AddHeader("Authorization", c.token).Post()
+	}).Post("/ump/api/v1/authority")
 	if err != nil {
 		return nil, err
 	}
-
-	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("create authority failed, status code: %d, response data: %s", res.StatusCode, res.Body.String())
-	}
-
-	var resp authorityResponse
-	err = res.Body.JsonBind(&resp)
-	if err != nil {
-		return nil, err
+	if res.StatusCode() != 200 {
+		return nil, fmt.Errorf("create authority failed, status code: %d, response data: %s", res.StatusCode(), res.String())
 	}
 
 	return resp.Data, nil
 }
 
 func (c *Client) UpdateAuthority(id int, name, describe, obj, act string) (*Authority, error) {
-	res, err := requests.New().SetUrl(gf.StringJoin(c.serverURL, "/ump/api/v1/authority/", strconv.Itoa(id))).SetJsonBody(&authorityRequest{
+	var resp authorityResponse
+	res, err := c.restyClient.R().SetResult(&resp).SetBody(&authorityRequest{
 		Name:          name,
 		Describe:      describe,
 		ApplicationID: c.applicationID,
 		Obj:           obj,
 		Act:           act,
-	}).AddHeader("Authorization", c.token).Put()
+	}).SetPathParam("id", strconv.Itoa(id)).Put("/ump/api/v1/authority/{id}")
 	if err != nil {
 		return nil, err
 	}
-
-	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("update authority failed, status code: %d, response data: %s", res.StatusCode, res.Body.String())
-	}
-
-	var resp authorityResponse
-	err = res.Body.JsonBind(&resp)
-	if err != nil {
-		return nil, err
+	if res.StatusCode() != 200 {
+		return nil, fmt.Errorf("update authority failed, status code: %d, response data: %s", res.StatusCode(), res.String())
 	}
 
 	return resp.Data, nil
 }
 
 func (c *Client) DeleteAuthority(id int) error {
-	res, err := requests.New().SetUrl(gf.StringJoin(c.serverURL, "/ump/api/v1/authority/", strconv.Itoa(id))).
-		AddHeader("Authorization", c.token).
-		Delete()
+	res, err := c.restyClient.R().SetPathParam("id", strconv.Itoa(id)).Delete("/ump/api/v1/authority/{id}")
 	if err != nil {
 		return err
 	}
-
-	if res.StatusCode != 200 {
-		return fmt.Errorf("delete authority failed, status code: %d, response data: %s", res.StatusCode, res.Body.String())
+	if res.StatusCode() != 200 {
+		return fmt.Errorf("delete authority failed, status code: %d, response data: %s", res.StatusCode(), res.String())
 	}
 
 	return nil
 }
 
 func (c *Client) GetAuthorityByObjAndAct(obj, act string) ([]*Authority, error) {
-	res, err := requests.New().SetUrl(gf.StringJoin(c.serverURL, "/ump/api/v1/authority/all")).
-		AddQuery("application_id", strconv.Itoa(c.applicationID)).
-		AddQuery("obj", obj).
-		AddQuery("act", act).
-		AddHeader("Authorization", c.token).Get()
-	if err != nil {
-		return nil, err
-	}
-
-	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("get authority failed, status code: %d, response data: %s", res.StatusCode, res.Body.String())
-	}
-
 	var resp authorityListResponse
-	err = res.Body.JsonBind(&resp)
+	res, err := c.restyClient.R().SetResult(&resp).SetQueryParams(map[string]string{
+		"application_id": strconv.Itoa(c.applicationID),
+		"obj":            obj,
+		"act":            act,
+	}).Get("/ump/api/v1/authority/all")
 	if err != nil {
 		return nil, err
+	}
+	if res.StatusCode() != 200 {
+		return nil, fmt.Errorf("get authority failed, status code: %d, response data: %s", res.StatusCode(), res.String())
 	}
 
 	return resp.Data, nil

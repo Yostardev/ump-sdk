@@ -2,8 +2,6 @@ package ump_sdk
 
 import (
 	"fmt"
-	"github.com/Yostardev/gf"
-	"github.com/Yostardev/requests"
 )
 
 type checkAuthRequest struct {
@@ -21,22 +19,17 @@ type checkAuthResponse struct {
 }
 
 func (c *Client) CheckAuth(obj, act string) (bool, error) {
-	res, err := requests.New().SetUrl(gf.StringJoin(c.serverURL, "/ump/api/v1/check")).SetJsonBody(&checkAuthRequest{
+	var resp checkAuthResponse
+	res, err := c.restyClient.R().SetResult(&resp).SetBody(&checkAuthRequest{
 		ApplicationId: c.applicationID,
 		Obj:           obj,
 		Act:           act,
-	}).AddHeader("Authorization", c.token).Post()
+	}).Post("/ump/api/v1/check")
 	if err != nil {
 		return false, err
 	}
-	if res.StatusCode != 200 {
-		return false, fmt.Errorf("check auth failed, status code: %d, response data: %s", res.StatusCode, res.Body.String())
-	}
-
-	var resp checkAuthResponse
-	err = res.Body.JsonBind(&resp)
-	if err != nil {
-		return false, err
+	if res.StatusCode() != 200 {
+		return false, fmt.Errorf("check auth failed, status code: %d, response data: %s", res.StatusCode(), res.String())
 	}
 
 	return resp.Data.Auth, nil

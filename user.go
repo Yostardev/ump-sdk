@@ -2,8 +2,6 @@ package ump_sdk
 
 import (
 	"fmt"
-	"github.com/Yostardev/gf"
-	"github.com/Yostardev/requests"
 	"strconv"
 	"time"
 )
@@ -55,54 +53,39 @@ type UserInfo struct {
 }
 
 func (c *Client) GetUserInfo() (*UserInfo, error) {
-	res, err := requests.New().SetUrl(gf.StringJoin(c.serverURL, "/ump/api/v1/user/self")).AddQuery("application_id", strconv.Itoa(c.applicationID)).AddHeader("Authorization", c.token).Get()
-	if err != nil {
-		return nil, err
-	}
-	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("get user info failed, status code: %d, response data: %s", res.StatusCode, res.Body.String())
-	}
-
 	var resp userInfoRequest
-	err = res.Body.JsonBind(&resp)
+	res, err := c.restyClient.R().SetResult(&resp).SetQueryParam("application_id", strconv.Itoa(c.applicationID)).Get("/ump/api/v1/user/self")
 	if err != nil {
 		return nil, err
+	}
+	if res.StatusCode() != 200 {
+		return nil, fmt.Errorf("get user info failed, status code: %d, response data: %s", res.StatusCode(), res.String())
 	}
 
 	return resp.Data, nil
 }
 
 func (c *Client) GetAllUser() ([]*UserInfo, error) {
-	res, err := requests.New().SetUrl(gf.StringJoin(c.serverURL, "/ump/api/v1/user/all")).AddHeader("Authorization", c.token).Get()
-	if err != nil {
-		return nil, err
-	}
-	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("get user info failed, status code: %d, response data: %s", res.StatusCode, res.Body.String())
-	}
-
 	var resp userInfoAllRequest
-	err = res.Body.JsonBind(&resp)
+	res, err := c.restyClient.R().SetResult(&resp).Get("/ump/api/v1/user/all")
 	if err != nil {
 		return nil, err
+	}
+	if res.StatusCode() != 200 {
+		return nil, fmt.Errorf("get user info failed, status code: %d, response data: %s", res.StatusCode(), res.String())
 	}
 
 	return resp.Data, nil
 }
 
 func (c *Client) GetUserByUsername(username string) (*UserInfo, error) {
-	res, err := requests.New().SetUrl(gf.StringJoin(c.serverURL, "/ump/api/v1/user/all")).AddQuery("username", username).AddHeader("Authorization", c.token).Get()
-	if err != nil {
-		return nil, err
-	}
-	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("get user info failed, status code: %d, response data: %s", res.StatusCode, res.Body.String())
-	}
-
 	var resp userInfoAllRequest
-	err = res.Body.JsonBind(&resp)
+	res, err := c.restyClient.R().SetResult(&resp).SetQueryParam("username", username).Get("/ump/api/v1/user/all")
 	if err != nil {
 		return nil, err
+	}
+	if res.StatusCode() != 200 {
+		return nil, fmt.Errorf("get user info failed, status code: %d, response data: %s", res.StatusCode(), res.String())
 	}
 
 	if len(resp.Data) != 1 {
@@ -110,17 +93,4 @@ func (c *Client) GetUserByUsername(username string) (*UserInfo, error) {
 	}
 
 	return resp.Data[0], nil
-}
-
-func (c *Client) UpdateUserAvatar(avatar string) error {
-	res, err := requests.New().SetUrl(gf.StringJoin(c.serverURL, "/ump/api/v1/user/avatar")).SetJsonBody(map[string]string{
-		"avatar": avatar,
-	}).AddHeader("Authorization", c.token).Post()
-	if err != nil {
-		return err
-	}
-	if res.StatusCode != 200 {
-		return fmt.Errorf("update user avatar failed, status code: %d, response data: %s", res.StatusCode, res.Body.String())
-	}
-	return nil
 }
