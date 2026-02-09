@@ -65,6 +65,19 @@ func (c *Client) GetUserInfo() (*UserInfo, error) {
 	return resp.Data, nil
 }
 
+func (c *Client) GetUserInfoByID(id int) (*UserInfo, error) {
+	var resp userInfoRequest
+	res, err := c.restyClient.R().SetResult(&resp).SetQueryParam("application_id", strconv.Itoa(c.applicationID)).Get(fmt.Sprintf("/ump/api/v1/user/%d", id))
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode() != 200 {
+		return nil, fmt.Errorf("get user info failed, status code: %d, response data: %s", res.StatusCode(), res.String())
+	}
+
+	return resp.Data, nil
+}
+
 func (c *Client) GetAllUser() ([]*UserInfo, error) {
 	var resp userInfoAllRequest
 	res, err := c.restyClient.R().SetResult(&resp).Get("/ump/api/v1/user/all")
@@ -92,7 +105,7 @@ func (c *Client) GetUserByUsername(username string) (*UserInfo, error) {
 		return nil, fmt.Errorf("get user info failed, found %d item", len(resp.Data))
 	}
 
-	return resp.Data[0], nil
+	return c.GetUserInfoByID(resp.Data[0].Id)
 }
 
 func (c *Client) GetUserByFeishuUnionID(feishuUnionID string) (*UserInfo, error) {
@@ -109,5 +122,5 @@ func (c *Client) GetUserByFeishuUnionID(feishuUnionID string) (*UserInfo, error)
 		return nil, fmt.Errorf("get user info failed, found %d item", len(resp.Data))
 	}
 
-	return resp.Data[0], nil
+	return c.GetUserInfoByID(resp.Data[0].Id)
 }
