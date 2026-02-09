@@ -94,3 +94,20 @@ func (c *Client) GetUserByUsername(username string) (*UserInfo, error) {
 
 	return resp.Data[0], nil
 }
+
+func (c *Client) GetUserByFeishuUnionID(feishuUnionID string) (*UserInfo, error) {
+	var resp userInfoAllRequest
+	res, err := c.restyClient.R().SetResult(&resp).SetQueryParam("feishu_union_id", feishuUnionID).Get("/ump/api/v1/user/all")
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode() != 200 {
+		return nil, fmt.Errorf("get user info failed, status code: %d, response data: %s", res.StatusCode(), res.String())
+	}
+
+	if len(resp.Data) != 1 {
+		return nil, fmt.Errorf("get user info failed, found %d item", len(resp.Data))
+	}
+
+	return resp.Data[0], nil
+}
