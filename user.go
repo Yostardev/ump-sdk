@@ -80,7 +80,7 @@ func (c *Client) GetAllUser() ([]*UserInfo, error) {
 
 func (c *Client) GetUserByUsername(username string) (*UserInfo, error) {
 	var resp userInfoAllRequest
-	res, err := c.restyClient.R().SetResult(&resp).SetQueryParam("username", username).Get("/ump/api/v1/user/all")
+	res, err := c.restyClient.R().SetResult(&resp).SetQueryParam("application_id", strconv.Itoa(c.applicationID)).SetQueryParam("username", username).Get("/ump/api/v1/user/all")
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (c *Client) GetUserByUsername(username string) (*UserInfo, error) {
 
 func (c *Client) GetUserByFeishuUnionID(feishuUnionID string) (*UserInfo, error) {
 	var resp userInfoAllRequest
-	res, err := c.restyClient.R().SetResult(&resp).SetQueryParam("feishu_union_id", feishuUnionID).Get("/ump/api/v1/user/all")
+	res, err := c.restyClient.R().SetResult(&resp).SetQueryParam("application_id", strconv.Itoa(c.applicationID)).SetQueryParam("feishu_union_id", feishuUnionID).Get("/ump/api/v1/user/all")
 	if err != nil {
 		return nil, err
 	}
